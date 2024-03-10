@@ -1,0 +1,7 @@
+.currency-table tr.up {
+    background-color: #C8E6C9;
+}
+
+.currency-table tr.down {
+    background-color: #FFCDD2;
+}
