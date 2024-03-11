@@ -28,3 +28,5 @@ price, market cap, and 24-hour price change.
 ## Screenshots
 
 ![image](/preview/1.gif)
+
+![image](/preview/2.gif)

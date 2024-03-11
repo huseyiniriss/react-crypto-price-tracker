@@ -2,10 +2,15 @@ import {Flex, Image, Table, Typography} from "antd";
 import PropTypes from "prop-types";
 import {currencyFormatter} from "@/utils/helpers.js";
 import styles from './CurrencyTable.module.css';
+import {service} from "@/lib/axios.js";
+import {useState} from "react";
+import moment from "moment";
+import HistoryChart from "@/components/HistoryChart.jsx";
 
 const {Text} = Typography;
 
 const columns = [
+    Table.EXPAND_COLUMN,
     {
         title: 'Rank',
         dataIndex: 'rank',
@@ -82,21 +87,57 @@ const columns = [
     },
 ];
 
-const CurrencyTable = (props) => (
-    <Table
-        dataSource={props.assets}
-        columns={columns}
-        pagination={{
-            position: ['bottomCenter'],
-            defaultPageSize: 12,
-            showSizeChanger: true,
-        }}
-        size="small"
-        rowKey={(record) => record.id}
-        rowClassName={(record) => styles[record.className]}
-        className={styles['currency-table']}
-    />
-);
+const CurrencyTable = (props) => {
+    const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+    const [data, setData] = useState({
+        seriesData: [],
+        xAxisData: [],
+    })
+    const onExpand = (expanded, record) => {
+        if (expanded) {
+            setExpandedRowKeys([record.id]);
+        } else {
+            setExpandedRowKeys([]);
+        }
+        const hour = Number(moment().format('H'));
+        const today = Number(moment().add(-1, 'days').set({
+            hour: hour,
+            minute: 0,
+            second: 0,
+            millisecond: 0
+        }).format('x'));
+        service.get(`/assets/${record.id}/history?interval=h1`).then((response) => {
+            const data = response.data.data.filter((item) => item.time >= today);
+            setData({
+                seriesData: data.map((item) => Number(item.priceUsd)),
+                xAxisData: data.map((item) => moment(item.time).format('ddd, HH:mm')),
+            })
+        });
+    }
+
+    return (
+        <Table
+            dataSource={props.assets}
+            columns={columns}
+            pagination={{
+                position: ['bottomCenter'],
+                defaultPageSize: 12,
+                showSizeChanger: true,
+            }}
+            size="small"
+            rowKey={(record) => record.id}
+            rowClassName={(record) => styles[record.className]}
+            className={styles['currency-table']}
+            expandable={{
+                expandedRowRender: () => (
+                    <HistoryChart seriesData={data.seriesData} xAxisData={data.xAxisData}/>
+                ),
+                onExpand: onExpand,
+                expandedRowKeys: expandedRowKeys,
+            }}
+        />
+    );
+};
 
 CurrencyTable.propTypes = {
     assets: PropTypes.array.isRequired,

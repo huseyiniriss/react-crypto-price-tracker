@@ -21,26 +21,26 @@ function App() {
     useEffect(() => {
         if (priceWs) {
             setAssets(assets.map((asset) => {
-                    return {
-                        ...asset,
-                        priceUsd: priceWs[asset.id] ? priceWs[asset.id] : asset.priceUsd,
-                        className: priceWs[asset.id] ? priceWs[asset.id] > asset.priceUsd ? 'up' : 'down' : ''
-                    }
-                })
-            )
+                return {
+                    ...asset,
+                    priceUsd: priceWs[asset.id] ? priceWs[asset.id] : asset.priceUsd,
+                    className: priceWs[asset.id] ? priceWs[asset.id] > asset.priceUsd ? 'up' : 'down' : ''
+                }
+            }))
         }
     }, [priceWs])
 
-    return (
-        <Layout>
-            <Header>
-                <Flex justify="center" align="center">
-                    <Title level={2} style={{
+    return (<Layout>
+            <Header style={{
+                alignItems: 'center', display: 'flex', justifyContent: 'center',
+            }}>
+                <Title
+                    level={3}
+                    style={{
                         color: 'white',
                     }}>
-                        Real Time Crypto Prices
-                    </Title>
-                </Flex>
+                    Crypto Price Tracker
+                </Title>
             </Header>
             <Content>
                 <Row justify="center">
@@ -54,8 +54,7 @@ function App() {
                     <Text type="secondary">© 2024 CoinCap Api Example</Text>
                 </Flex>
             </Footer>
-        </Layout>
-    )
+        </Layout>)
 }
 
 export default App
